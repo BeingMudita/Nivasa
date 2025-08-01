@@ -10,14 +10,13 @@ mongoose.connect(process.env.MONGO_URI as string)
   .catch(err => console.error("MongoDB error:", err));
 
 import {profileRoutes} from './routes/profiles';
-app.use("/api/profiles", profileRoutes);
-
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/api/profiles", profileRoutes);
 
 // Add your API routes here (see below)
 
