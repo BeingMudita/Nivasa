@@ -1,36 +1,47 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import joblib
-import numpy as np
 from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
-import os
 from dotenv import load_dotenv
+import joblib
+import numpy as np
+import os
 
-# Load environment variables
+# Load environment variables from .env
 load_dotenv()
 
-# MongoDB setup
-client = MongoClient(os.getenv("MONGO_URI"))
-db = client.get_database("roommate_ai")
-collection = db.get_collection("predictions")
+# MongoDB URI
+MONGO_URI = os.getenv("MONGO_URI")
 
-# Load the trained model
-model = joblib.load("compatibility_model.pkl")
+# Initialize MongoDB client
+try:
+    client = MongoClient(MONGO_URI)
+    db = client.get_database("roommate_ai")
+    collection = db.get_collection("predictions")
+    # Test connection
+    db.list_collection_names()
+except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
 
-# FastAPI setup
+# Load trained model
+try:
+    model = joblib.load("compatibility_model.pkl")
+except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Model loading failed: {e}")
+
+# FastAPI app setup
 app = FastAPI()
 
-# CORS middleware to allow frontend communication
+# CORS middleware for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For dev; restrict in prod
+    allow_origins=["*"],  # For development; restrict in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Input format
+# Pydantic model for input
 class CompatibilityInput(BaseModel):
     age_difference: int
     cleanliness: int
@@ -42,6 +53,14 @@ class CompatibilityInput(BaseModel):
 @app.get("/")
 def root():
     return {"message": "Roommate Compatibility API is running"}
+
+@app.get("/test-db")
+def test_db_connection():
+    try:
+        collections = db.list_collection_names()
+        return {"message": "Database connected successfully", "collections": collections}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
 
 @app.post("/predict")
 def predict_compatibility(data: CompatibilityInput):
@@ -57,7 +76,7 @@ def predict_compatibility(data: CompatibilityInput):
 
         prediction = model.predict(input_data)[0]
 
-        # Save to MongoDB
+        # Save result to MongoDB
         record = data.dict()
         record["compatibility_score"] = int(prediction)
         collection.insert_one(record)
