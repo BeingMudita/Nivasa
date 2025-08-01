@@ -58,7 +58,7 @@ const Matches = () => {
         floor: 2,
         side: "East",
         features: ["Large windows", "Built-in desk", "Shared kitchen"],
-        rent: "$950/month"
+        rent: "10000 Rs./month"
       },
       reasons: [
         "You both prefer quiet nights and early mornings",

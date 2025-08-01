@@ -1,8 +1,9 @@
-import {express} from "express";
-import {cors} from "cors";
-import {bodyParser} from "body-parser";
-import {dotenv} from "dotenv";
-import {mongoose }from "mongoose";
+import type { Express } from "express";
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 
 mongoose.connect(process.env.MONGO_URI as string)
   .then(() => console.log("MongoDB connected"))

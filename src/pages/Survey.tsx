@@ -33,9 +33,10 @@ const Survey = () => {
 
   const handleVoiceInput = () => {
     setIsRecording(!isRecording);
-    // Mock voice interaction - in real app this would trigger Omnidim.io
+    // Mock voice interaction - in a real app this would trigger Omnidim.io voice assistant logic
+    
     if (!isRecording) {
-      // Simulate starting recording
+      // Simulate starting recording with interim transcript
       setCurrentTranscript("I'm looking for someone who's clean and quiet...");
       
       // Simulate completed response after 3 seconds

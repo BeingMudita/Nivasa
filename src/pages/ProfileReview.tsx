@@ -30,7 +30,7 @@ const ProfileReview = () => {
     lifestyle: ["Clean & organized", "Quiet evenings", "Loves cooking", "Remote worker", "Early riser"],
     preferences: ["Non-smoker", "Pet-free", "Quiet hours after 9pm", "Shared kitchen time", "Common area respect"],
     schedule: "9 AM - 6 PM work schedule",
-    budget: "$800 - $1,200"
+    budget: "10800 - 12000"
   });
 
   const handleSaveChanges = () => {
