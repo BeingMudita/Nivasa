@@ -2,13 +2,35 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
 import numpy as np
+from pymongo import MongoClient
+from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
 
-app = FastAPI()
+# Load environment variables
+load_dotenv()
+
+# MongoDB setup
+client = MongoClient(os.getenv("MONGO_URI"))
+db = client.get_database("roommate_ai")
+collection = db.get_collection("predictions")
 
 # Load the trained model
 model = joblib.load("compatibility_model.pkl")
 
-# Define input format for the API
+# FastAPI setup
+app = FastAPI()
+
+# CORS middleware to allow frontend communication
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For dev; restrict in prod
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Input format
 class CompatibilityInput(BaseModel):
     age_difference: int
     cleanliness: int
@@ -33,8 +55,14 @@ def predict_compatibility(data: CompatibilityInput):
             data.cooking_frequency
         ]])
 
-        prediction = model.predict(input_data)
-        return {"compatibility_score": int(prediction[0])}
+        prediction = model.predict(input_data)[0]
+
+        # Save to MongoDB
+        record = data.dict()
+        record["compatibility_score"] = int(prediction)
+        collection.insert_one(record)
+
+        return {"compatibility_score": int(prediction)}
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
