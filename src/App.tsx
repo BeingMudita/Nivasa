@@ -11,6 +11,7 @@ import ProfileReview from "./pages/ProfileReview";
 import Matches from "./pages/Matches";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import LoginSignup from "./pages/LoginSignup"; // ✅ Import the LoginSignup page
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,8 @@ const App = () => (
                 <Route path="/matches" element={<Matches />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="*" element={<NotFound />} />
+                <Route path="/auth" element={<LoginSignup />} />
+
               </Routes>
             </div>
           </div>
