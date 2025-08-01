@@ -7,41 +7,41 @@ import joblib
 import numpy as np
 import os
 
-# Load environment variables from .env
+# Load .env
 load_dotenv()
 
-# MongoDB URI
+# Mongo URI from .env
 MONGO_URI = os.getenv("MONGO_URI")
 
-# Initialize MongoDB client
+# MongoDB client setup
 try:
     client = MongoClient(MONGO_URI)
     db = client.get_database("roommate_ai")
     collection = db.get_collection("predictions")
-    # Test connection
-    db.list_collection_names()
+    admin_collection = db.get_collection("admins")
+    db.list_collection_names()  # test connection
 except Exception as e:
     raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
 
-# Load trained model
+# Load ML model
 try:
     model = joblib.load("compatibility_model.pkl")
 except Exception as e:
     raise HTTPException(status_code=500, detail=f"Model loading failed: {e}")
 
-# FastAPI app setup
+# FastAPI app
 app = FastAPI()
 
-# CORS middleware for frontend
+# Allow CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development; restrict in production
+    allow_origins=["*"],  # ⚠️ Change in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Pydantic model for input
+# Input for prediction
 class CompatibilityInput(BaseModel):
     age_difference: int
     cleanliness: int
@@ -49,6 +49,10 @@ class CompatibilityInput(BaseModel):
     introvert: int
     noise_tolerance: int
     cooking_frequency: int
+
+# Input for admin check
+class EmailCheck(BaseModel):
+    email: str
 
 @app.get("/")
 def root():
@@ -76,7 +80,7 @@ def predict_compatibility(data: CompatibilityInput):
 
         prediction = model.predict(input_data)[0]
 
-        # Save result to MongoDB
+        # Save to DB
         record = data.dict()
         record["compatibility_score"] = int(prediction)
         collection.insert_one(record)
@@ -85,3 +89,12 @@ def predict_compatibility(data: CompatibilityInput):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/check-admin")
+def check_admin(data: EmailCheck):
+    try:
+        result = admin_collection.find_one({"email": data.email})
+        is_admin = result is not None
+        return {"is_admin": is_admin}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Admin check failed: {e}")

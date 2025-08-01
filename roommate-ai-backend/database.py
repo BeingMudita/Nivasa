@@ -1,8 +1,12 @@
-import os
 from pymongo import MongoClient
+import os
 from dotenv import load_dotenv
+
 load_dotenv()
-MONGO_URI = os.getenv("MONGO_URI")
-client = MongoClient(MONGO_URI)
-db = client["roommate_ai"]
-responses_collection = db["predictions"]
+
+client = MongoClient(os.getenv("MONGO_URI"))
+db = client[os.getenv("MONGO_DB_NAME")]
+
+# Collections
+users_collection = db["users"]
+admin_emails_collection = db["admin_emails"]
