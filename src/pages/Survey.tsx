@@ -185,26 +185,6 @@ const Survey = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-              <Button 
-                size="xl" 
-                variant="gradient" 
-                onClick={() => handleStartSurvey('voice')}
-                className="group"
-                disabled={!isOmnidimLoaded}
-              >
-                <Mic className="mr-2 h-5 w-5 group-hover:animate-bounce-gentle" />
-                Start Voice Survey
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              
-              <Button 
-                size="xl" 
-                variant="floating"
-                onClick={() => handleStartSurvey('text')}
-              >
-                <MessageSquare className="mr-2 h-5 w-5" />
-                Use Text Instead
-              </Button>
             </div>
 
             {!isOmnidimLoaded && (
