@@ -1,4 +1,5 @@
 id,sleep,eating,cleanliness,sociability,sharing
+<<<<<<< HEAD
 U001,Early,Flexitarian,2,Social/Chill,Very open
 U002,Night owl,Non-vegetarian,1,Social/Chill,Somewhat okay
 U003,Night owl,Vegetarian,5,Social/Chill,Very open
@@ -99,3 +100,305 @@ U097,On-time,Vegan,3,Social/Chill,Somewhat okay
 U098,Night owl,Flexitarian,1,Balanced,Very open
 U099,Night owl,Vegan,5,Balanced,Somewhat okay
 U100,Early,Vegetarian,5,Social/Chill,Very open
+=======
+U001,Early,Vegetarian,4,Balanced,Very open
+U002,Night owl,Non-vegetarian,1,Balanced,Somewhat okay
+U003,On-time,Vegetarian,5,Balanced,Somewhat okay
+U004,Early,Flexitarian,3,Balanced,Very open
+U005,On-time,Flexitarian,3,Social/Chill,Very open
+U006,On-time,Non-vegetarian,2,Social/Chill,Very open
+U007,On-time,Vegan,3,Balanced,Not comfortable
+U008,On-time,Flexitarian,1,Quiet,Somewhat okay
+U009,Night owl,Vegetarian,3,Social/Chill,Very open
+U010,On-time,Flexitarian,3,Social/Chill,Very open
+U011,Early,Flexitarian,4,Balanced,Somewhat okay
+U012,Night owl,Non-vegetarian,2,Social/Chill,Very open
+U013,On-time,Non-vegetarian,4,Social/Chill,Very open
+U014,Early,Vegan,5,Balanced,Somewhat okay
+U015,Early,Flexitarian,4,Quiet,Not comfortable
+U016,On-time,Vegan,5,Balanced,Not comfortable
+U017,Night owl,Vegetarian,3,Social/Chill,Very open
+U018,On-time,Non-vegetarian,2,Social/Chill,Not comfortable
+U019,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U020,Early,Vegan,1,Balanced,Very open
+U021,Early,Vegetarian,5,Balanced,Somewhat okay
+U022,On-time,Non-vegetarian,2,Balanced,Not comfortable
+U023,Night owl,Non-vegetarian,4,Balanced,Somewhat okay
+U024,Night owl,Flexitarian,4,Social/Chill,Not comfortable
+U025,On-time,Flexitarian,3,Balanced,Somewhat okay
+U026,On-time,Flexitarian,4,Balanced,Very open
+U027,Early,Vegetarian,5,Balanced,Somewhat okay
+U028,Night owl,Non-vegetarian,4,Social/Chill,Very open
+U029,On-time,Non-vegetarian,3,Social/Chill,Very open
+U030,Early,Vegetarian,5,Quiet,Not comfortable
+U031,Night owl,Non-vegetarian,1,Quiet,Not comfortable
+U032,Early,Flexitarian,5,Quiet,Not comfortable
+U033,Early,Vegetarian,5,Balanced,Somewhat okay
+U034,Early,Vegetarian,4,Quiet,Not comfortable
+U035,Night owl,Non-vegetarian,2,Balanced,Somewhat okay
+U036,Night owl,Vegan,3,Social/Chill,Very open
+U037,On-time,Flexitarian,1,Social/Chill,Very open
+U038,Night owl,Non-vegetarian,5,Social/Chill,Very open
+U039,Night owl,Non-vegetarian,4,Quiet,Somewhat okay
+U040,Night owl,Vegan,3,Social/Chill,Very open
+U041,On-time,Vegan,5,Quiet,Not comfortable
+U042,On-time,Non-vegetarian,2,Quiet,Not comfortable
+U043,Night owl,Non-vegetarian,1,Quiet,Not comfortable
+U044,Early,Vegetarian,2,Quiet,Not comfortable
+U045,Night owl,Non-vegetarian,1,Balanced,Not comfortable
+U046,Night owl,Vegetarian,5,Social/Chill,Very open
+U047,On-time,Vegan,4,Balanced,Very open
+U048,Night owl,Flexitarian,3,Social/Chill,Somewhat okay
+U049,Early,Vegan,5,Social/Chill,Very open
+U050,Night owl,Non-vegetarian,1,Social/Chill,Somewhat okay
+U051,Early,Vegan,3,Quiet,Not comfortable
+U052,Early,Flexitarian,2,Balanced,Not comfortable
+U053,Early,Vegetarian,4,Quiet,Very open
+U054,Early,Vegetarian,4,Quiet,Somewhat okay
+U055,Night owl,Flexitarian,3,Social/Chill,Very open
+U056,On-time,Flexitarian,3,Quiet,Somewhat okay
+U057,Early,Vegetarian,4,Balanced,Somewhat okay
+U058,On-time,Vegetarian,5,Balanced,Not comfortable
+U059,On-time,Flexitarian,4,Social/Chill,Very open
+U060,Night owl,Non-vegetarian,1,Social/Chill,Somewhat okay
+U061,On-time,Flexitarian,2,Balanced,Somewhat okay
+U062,Night owl,Non-vegetarian,4,Social/Chill,Very open
+U063,Night owl,Non-vegetarian,3,Balanced,Not comfortable
+U064,Early,Vegan,4,Quiet,Somewhat okay
+U065,On-time,Vegan,5,Quiet,Somewhat okay
+U066,Night owl,Non-vegetarian,2,Quiet,Not comfortable
+U067,Early,Vegan,5,Balanced,Somewhat okay
+U068,On-time,Vegetarian,3,Quiet,Not comfortable
+U069,On-time,Flexitarian,1,Social/Chill,Somewhat okay
+U070,On-time,Flexitarian,2,Balanced,Somewhat okay
+U071,Early,Vegetarian,5,Balanced,Somewhat okay
+U072,Night owl,Vegetarian,4,Social/Chill,Very open
+U073,On-time,Vegan,4,Social/Chill,Very open
+U074,Night owl,Vegetarian,4,Social/Chill,Very open
+U075,On-time,Non-vegetarian,3,Quiet,Very open
+U076,Early,Non-vegetarian,5,Balanced,Very open
+U077,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U078,On-time,Vegetarian,5,Quiet,Very open
+U079,On-time,Flexitarian,4,Quiet,Not comfortable
+U080,Night owl,Vegetarian,4,Balanced,Somewhat okay
+U081,Early,Flexitarian,2,Balanced,Not comfortable
+U082,On-time,Vegetarian,2,Social/Chill,Somewhat okay
+U083,On-time,Non-vegetarian,3,Social/Chill,Very open
+U084,Early,Vegetarian,1,Quiet,Not comfortable
+U085,On-time,Vegetarian,4,Social/Chill,Very open
+U086,Early,Flexitarian,2,Balanced,Not comfortable
+U087,Early,Vegetarian,4,Balanced,Not comfortable
+U088,On-time,Flexitarian,3,Quiet,Not comfortable
+U089,Night owl,Flexitarian,5,Social/Chill,Very open
+U090,Early,Vegetarian,5,Balanced,Somewhat okay
+U091,On-time,Non-vegetarian,4,Quiet,Not comfortable
+U092,Night owl,Flexitarian,5,Social/Chill,Somewhat okay
+U093,Night owl,Vegan,3,Social/Chill,Very open
+U094,Early,Vegan,5,Quiet,Very open
+U095,Early,Vegan,3,Quiet,Somewhat okay
+U096,Night owl,Vegan,4,Social/Chill,Very open
+U097,Early,Vegan,4,Social/Chill,Somewhat okay
+U098,On-time,Flexitarian,4,Balanced,Not comfortable
+U099,Early,Vegan,5,Quiet,Not comfortable
+U100,Night owl,Non-vegetarian,5,Social/Chill,Somewhat okay
+U101,Night owl,Non-vegetarian,3,Social/Chill,Somewhat okay
+U102,On-time,Vegetarian,5,Social/Chill,Very open
+U103,Early,Vegetarian,4,Social/Chill,Not comfortable
+U104,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U105,Night owl,Flexitarian,2,Social/Chill,Very open
+U106,Early,Non-vegetarian,3,Quiet,Very open
+U107,Night owl,Non-vegetarian,2,Social/Chill,Very open
+U108,Early,Vegan,5,Quiet,Not comfortable
+U109,Early,Non-vegetarian,2,Quiet,Somewhat okay
+U110,Night owl,Non-vegetarian,2,Social/Chill,Very open
+U111,Night owl,Vegan,5,Social/Chill,Very open
+U112,Early,Vegan,5,Balanced,Not comfortable
+U113,Night owl,Flexitarian,2,Social/Chill,Very open
+U114,On-time,Vegetarian,4,Social/Chill,Somewhat okay
+U115,Early,Flexitarian,4,Quiet,Not comfortable
+U116,Early,Vegetarian,4,Balanced,Not comfortable
+U117,Early,Vegan,5,Quiet,Not comfortable
+U118,Early,Vegetarian,5,Balanced,Somewhat okay
+U119,Early,Vegan,3,Social/Chill,Very open
+U120,On-time,Vegetarian,5,Balanced,Somewhat okay
+U121,Early,Flexitarian,1,Quiet,Not comfortable
+U122,On-time,Vegetarian,4,Balanced,Somewhat okay
+U123,On-time,Vegan,3,Social/Chill,Very open
+U124,Night owl,Non-vegetarian,1,Social/Chill,Very open
+U125,Early,Flexitarian,3,Balanced,Very open
+U126,On-time,Non-vegetarian,2,Balanced,Very open
+U127,On-time,Non-vegetarian,5,Quiet,Very open
+U128,On-time,Vegetarian,3,Quiet,Not comfortable
+U129,Early,Flexitarian,3,Quiet,Not comfortable
+U130,Night owl,Non-vegetarian,4,Social/Chill,Very open
+U131,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U132,Early,Vegan,3,Balanced,Not comfortable
+U133,Night owl,Vegan,5,Social/Chill,Somewhat okay
+U134,On-time,Flexitarian,3,Social/Chill,Very open
+U135,Night owl,Non-vegetarian,4,Social/Chill,Very open
+U136,Early,Non-vegetarian,5,Balanced,Somewhat okay
+U137,Early,Vegetarian,3,Balanced,Very open
+U138,Night owl,Vegan,3,Social/Chill,Somewhat okay
+U139,Early,Flexitarian,3,Quiet,Not comfortable
+U140,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U141,On-time,Vegetarian,5,Balanced,Somewhat okay
+U142,On-time,Vegetarian,5,Quiet,Somewhat okay
+U143,Night owl,Vegetarian,4,Balanced,Not comfortable
+U144,On-time,Flexitarian,3,Balanced,Very open
+U145,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U146,Early,Vegetarian,4,Social/Chill,Very open
+U147,On-time,Vegan,3,Social/Chill,Somewhat okay
+U148,Night owl,Vegetarian,1,Social/Chill,Very open
+U149,Night owl,Vegetarian,4,Social/Chill,Very open
+U150,Night owl,Vegan,4,Social/Chill,Very open
+U151,Night owl,Flexitarian,4,Social/Chill,Somewhat okay
+U152,On-time,Flexitarian,3,Balanced,Somewhat okay
+U153,Early,Vegan,3,Quiet,Somewhat okay
+U154,Night owl,Non-vegetarian,2,Social/Chill,Very open
+U155,Early,Vegetarian,4,Quiet,Somewhat okay
+U156,Night owl,Non-vegetarian,2,Social/Chill,Not comfortable
+U157,Night owl,Non-vegetarian,1,Social/Chill,Very open
+U158,On-time,Vegan,4,Social/Chill,Very open
+U159,On-time,Vegan,3,Social/Chill,Not comfortable
+U160,Night owl,Non-vegetarian,1,Social/Chill,Very open
+U161,On-time,Vegetarian,5,Balanced,Somewhat okay
+U162,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U163,Night owl,Non-vegetarian,2,Quiet,Not comfortable
+U164,On-time,Flexitarian,2,Quiet,Somewhat okay
+U165,Early,Flexitarian,4,Balanced,Somewhat okay
+U166,Night owl,Vegan,2,Social/Chill,Very open
+U167,Night owl,Non-vegetarian,2,Social/Chill,Somewhat okay
+U168,Night owl,Non-vegetarian,3,Social/Chill,Somewhat okay
+U169,On-time,Flexitarian,2,Quiet,Somewhat okay
+U170,Night owl,Flexitarian,2,Social/Chill,Very open
+U171,On-time,Flexitarian,2,Balanced,Somewhat okay
+U172,Early,Non-vegetarian,4,Quiet,Not comfortable
+U173,Night owl,Vegan,2,Social/Chill,Very open
+U174,On-time,Vegetarian,4,Balanced,Very open
+U175,On-time,Non-vegetarian,5,Quiet,Not comfortable
+U176,Early,Flexitarian,3,Balanced,Very open
+U177,Early,Vegan,5,Balanced,Somewhat okay
+U178,On-time,Vegetarian,4,Balanced,Somewhat okay
+U179,On-time,Flexitarian,1,Balanced,Somewhat okay
+U180,On-time,Vegetarian,3,Social/Chill,Somewhat okay
+U181,Early,Vegetarian,4,Quiet,Somewhat okay
+U182,On-time,Flexitarian,2,Quiet,Very open
+U183,Night owl,Non-vegetarian,4,Quiet,Not comfortable
+U184,Night owl,Vegan,4,Quiet,Not comfortable
+U185,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U186,On-time,Non-vegetarian,4,Quiet,Very open
+U187,Night owl,Non-vegetarian,2,Social/Chill,Very open
+U188,On-time,Vegan,5,Quiet,Not comfortable
+U189,Early,Vegan,1,Quiet,Not comfortable
+U190,Early,Vegetarian,4,Quiet,Very open
+U191,Night owl,Non-vegetarian,4,Social/Chill,Very open
+U192,Early,Flexitarian,1,Quiet,Somewhat okay
+U193,Early,Vegan,4,Balanced,Somewhat okay
+U194,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U195,On-time,Vegetarian,3,Social/Chill,Very open
+U196,Early,Vegan,2,Quiet,Somewhat okay
+U197,Early,Vegetarian,4,Balanced,Not comfortable
+U198,Night owl,Non-vegetarian,1,Social/Chill,Somewhat okay
+U199,Night owl,Non-vegetarian,2,Social/Chill,Not comfortable
+U200,On-time,Non-vegetarian,2,Balanced,Very open
+U201,Night owl,Non-vegetarian,1,Social/Chill,Very open
+U202,On-time,Vegan,5,Balanced,Somewhat okay
+U203,Early,Vegetarian,4,Quiet,Somewhat okay
+U204,Night owl,Vegan,5,Balanced,Somewhat okay
+U205,Early,Flexitarian,4,Balanced,Somewhat okay
+U206,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U207,Night owl,Flexitarian,5,Balanced,Somewhat okay
+U208,On-time,Vegetarian,3,Quiet,Somewhat okay
+U209,On-time,Vegan,4,Balanced,Somewhat okay
+U210,Early,Flexitarian,3,Quiet,Not comfortable
+U211,Night owl,Vegan,4,Social/Chill,Very open
+U212,Night owl,Non-vegetarian,2,Social/Chill,Very open
+U213,Early,Vegan,3,Balanced,Somewhat okay
+U214,Night owl,Flexitarian,3,Social/Chill,Somewhat okay
+U215,On-time,Flexitarian,2,Balanced,Somewhat okay
+U216,Early,Vegetarian,5,Balanced,Somewhat okay
+U217,Night owl,Vegan,2,Social/Chill,Very open
+U218,Night owl,Non-vegetarian,5,Social/Chill,Very open
+U219,Night owl,Flexitarian,1,Balanced,Somewhat okay
+U220,Early,Vegan,4,Quiet,Somewhat okay
+U221,Night owl,Flexitarian,4,Social/Chill,Very open
+U222,Early,Vegan,4,Quiet,Somewhat okay
+U223,Night owl,Flexitarian,2,Quiet,Not comfortable
+U224,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U225,On-time,Vegan,2,Balanced,Somewhat okay
+U226,On-time,Vegetarian,3,Social/Chill,Somewhat okay
+U227,Night owl,Non-vegetarian,1,Balanced,Somewhat okay
+U228,Night owl,Non-vegetarian,2,Balanced,Very open
+U229,Night owl,Flexitarian,2,Social/Chill,Very open
+U230,On-time,Vegan,5,Balanced,Somewhat okay
+U231,Night owl,Non-vegetarian,4,Social/Chill,Somewhat okay
+U232,Night owl,Flexitarian,3,Social/Chill,Very open
+U233,On-time,Flexitarian,1,Social/Chill,Somewhat okay
+U234,Night owl,Non-vegetarian,4,Balanced,Very open
+U235,Night owl,Vegetarian,5,Social/Chill,Very open
+U236,Night owl,Vegan,4,Social/Chill,Very open
+U237,On-time,Vegan,5,Social/Chill,Somewhat okay
+U238,On-time,Vegan,4,Balanced,Somewhat okay
+U239,Early,Vegan,3,Balanced,Somewhat okay
+U240,Early,Vegan,4,Quiet,Somewhat okay
+U241,On-time,Vegetarian,3,Balanced,Somewhat okay
+U242,On-time,Vegetarian,5,Balanced,Somewhat okay
+U243,Early,Flexitarian,1,Social/Chill,Somewhat okay
+U244,On-time,Vegetarian,4,Social/Chill,Somewhat okay
+U245,Night owl,Non-vegetarian,3,Quiet,Somewhat okay
+U246,On-time,Flexitarian,2,Balanced,Somewhat okay
+U247,Night owl,Flexitarian,5,Social/Chill,Very open
+U248,Early,Vegan,5,Quiet,Somewhat okay
+U249,Early,Vegetarian,5,Social/Chill,Very open
+U250,On-time,Vegan,2,Social/Chill,Very open
+U251,Night owl,Flexitarian,3,Social/Chill,Very open
+U252,Night owl,Vegan,3,Social/Chill,Somewhat okay
+U253,On-time,Flexitarian,3,Balanced,Somewhat okay
+U254,Early,Vegetarian,5,Balanced,Somewhat okay
+U255,Night owl,Non-vegetarian,1,Balanced,Somewhat okay
+U256,Night owl,Non-vegetarian,2,Social/Chill,Very open
+U257,Night owl,Non-vegetarian,5,Social/Chill,Very open
+U258,Early,Vegetarian,5,Balanced,Somewhat okay
+U259,On-time,Non-vegetarian,3,Balanced,Somewhat okay
+U260,Early,Vegetarian,4,Quiet,Somewhat okay
+U261,Night owl,Flexitarian,3,Social/Chill,Very open
+U262,Night owl,Flexitarian,4,Social/Chill,Somewhat okay
+U263,Early,Vegetarian,2,Quiet,Not comfortable
+U264,Night owl,Flexitarian,4,Social/Chill,Very open
+U265,Early,Non-vegetarian,3,Balanced,Somewhat okay
+U266,Night owl,Flexitarian,2,Social/Chill,Very open
+U267,Early,Vegetarian,3,Balanced,Somewhat okay
+U268,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U269,On-time,Flexitarian,3,Balanced,Somewhat okay
+U270,Night owl,Non-vegetarian,2,Social/Chill,Very open
+U271,Early,Vegetarian,3,Quiet,Not comfortable
+U272,On-time,Vegetarian,5,Social/Chill,Very open
+U273,Early,Vegan,5,Balanced,Somewhat okay
+U274,On-time,Vegan,1,Quiet,Somewhat okay
+U275,Early,Vegan,4,Balanced,Somewhat okay
+U276,On-time,Vegan,4,Balanced,Somewhat okay
+U277,On-time,Flexitarian,4,Balanced,Somewhat okay
+U278,Early,Vegan,2,Balanced,Somewhat okay
+U279,Night owl,Vegan,4,Social/Chill,Very open
+U280,Early,Flexitarian,4,Balanced,Not comfortable
+U281,On-time,Non-vegetarian,3,Balanced,Somewhat okay
+U282,Night owl,Flexitarian,3,Balanced,Not comfortable
+U283,Night owl,Flexitarian,1,Balanced,Somewhat okay
+U284,On-time,Vegetarian,4,Balanced,Somewhat okay
+U285,Night owl,Non-vegetarian,4,Balanced,Somewhat okay
+U286,Night owl,Flexitarian,2,Balanced,Somewhat okay
+U287,On-time,Vegetarian,1,Quiet,Not comfortable
+U288,Night owl,Flexitarian,3,Balanced,Not comfortable
+U289,Early,Vegetarian,5,Quiet,Not comfortable
+U290,Early,Vegan,3,Quiet,Very open
+U291,On-time,Non-vegetarian,2,Social/Chill,Very open
+U292,Night owl,Non-vegetarian,3,Social/Chill,Very open
+U293,Early,Vegetarian,4,Quiet,Somewhat okay
+U294,On-time,Vegetarian,1,Balanced,Somewhat okay
+U295,Early,Vegetarian,5,Quiet,Somewhat okay
+U296,Early,Flexitarian,4,Balanced,Somewhat okay
+U297,On-time,Vegan,2,Social/Chill,Very open
+U298,On-time,Non-vegetarian,3,Balanced,Somewhat okay
+U299,Night owl,Flexitarian,2,Social/Chill,Not comfortable
+U300,Night owl,Non-vegetarian,1,Balanced,Somewhat okay
+>>>>>>> d08866e (Adding Model)
