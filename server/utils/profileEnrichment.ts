@@ -3,14 +3,14 @@ const cleanlinessScores = [1, 2, 3, 4, 5];
 const sociabilityLevels = ["Quiet", "Balanced", "Outgoing"];
 const sharingComfort = ["Low", "Medium", "High"];
 
-export function enrichProfile(user: any) {
+function enrichProfile(user: any) {
   // For random selection, use a helper:
   function weightedRandom(arr: any[], weights: number[]) {
     const sum = weights.reduce((a, b) => a + b, 0);
     let r = Math.random() * sum;
     let i = 0;
     while (r >= 0 && i < arr.length) {
-      r -= weights[i];
+      r -= weights[i] ?? 0;
       if (r < 0) return arr[i];
       i++;
     }
@@ -54,3 +54,5 @@ export function enrichProfile(user: any) {
 
   return user;
 }
+
+module.exports = { enrichProfile };

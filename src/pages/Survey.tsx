@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Mic, MessageSquare, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-illustration.jpg";
+
+declare global {
+  interface Window {
+    OmnidimensionWidget: any;
+  }
+}
 
 interface ChatMessage {
   id: string;
@@ -18,47 +24,136 @@ const Survey = () => {
   const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState("");
+  const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice');
+  const [textInput, setTextInput] = useState("");
+  const [isOmnidimLoaded, setIsOmnidimLoaded] = useState(false);
+  const omnidimWidgetRef = useRef<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleStartSurvey = () => {
+  // Load Omnidim widget script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.id = 'omnidimension-web-widget';
+    script.src = 'https://backend.omnidim.io/web_widget.js?secret_key=24059fb320159fe474451bccb28914cb';
+    script.async = true;
+    script.onload = () => {
+      setIsOmnidimLoaded(true);
+      initializeOmnidim();
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  // Initialize Omnidim widget in background mode
+  const initializeOmnidim = () => {
+    if (window.OmnidimensionWidget) {
+      omnidimWidgetRef.current = new window.OmnidimensionWidget({
+        agentId: '8685',
+        backgroundMode: true, // Run in background without UI
+        onMessage: (message: { role: string; content: string }) => {
+          const newMessage: ChatMessage = {
+            id: Date.now().toString(),
+            type: message.role === 'user' ? 'user' : 'assistant',
+            content: message.content,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, newMessage]);
+        },
+        onTranscriptUpdate: (transcript: string) => {
+          setCurrentTranscript(transcript);
+        },
+        onCallStart: () => {
+          setIsRecording(true);
+        },
+        onCallEnd: () => {
+          setIsRecording(false);
+          setCurrentTranscript("");
+        },
+        onKeywordsExtracted: (keywords: any) => {
+          // Handle extracted keywords from Omnidim
+          console.log('Extracted keywords:', keywords);
+          // You can store these keywords in state or send to your backend
+        }
+      });
+    }
+  };
+
+  // Scroll to bottom of messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, currentTranscript]);
+
+  const handleStartSurvey = (mode: 'voice' | 'text') => {
+    setInputMode(mode);
     setHasStarted(true);
-    // Add welcome message from assistant
+    
     const welcomeMessage: ChatMessage = {
       id: Date.now().toString(),
       type: 'assistant',
-      content: "Hi! I'm so excited to help you find your perfect roommate. Let's start with a quick question - what's most important to you in a living space?",
+      content: mode === 'voice' 
+        ? "Hi! I'll help find your perfect roommate. Please speak your answers." 
+        : "Hi! Let's find your perfect roommate. Please answer the following questions:\n\n1. What's most important to you in a living space?",
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
+
+    if (mode === 'voice' && isOmnidimLoaded && omnidimWidgetRef.current) {
+      omnidimWidgetRef.current.startCall();
+    }
   };
 
   const handleVoiceInput = () => {
-    setIsRecording(!isRecording);
-    // Mock voice interaction - in a real app this would trigger Omnidim.io voice assistant logic
-    
-    if (!isRecording) {
-      // Simulate starting recording with interim transcript
-      setCurrentTranscript("I'm looking for someone who's clean and quiet...");
-      
-      // Simulate completed response after 3 seconds
-      setTimeout(() => {
-        const userMessage: ChatMessage = {
-          id: Date.now().toString(),
-          type: 'user',
-          content: "I'm looking for someone who's clean, quiet, and loves to cook. I work from home so I need a peaceful environment.",
-          timestamp: new Date()
-        };
-        
-        const assistantResponse: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          type: 'assistant',
-          content: "That's wonderful! A peaceful environment is so important for remote work. Tell me about your daily routine - are you an early bird or a night owl?",
-          timestamp: new Date()
-        };
+    if (!isOmnidimLoaded) return;
 
-        setMessages(prev => [...prev, userMessage, assistantResponse]);
-        setCurrentTranscript("");
-        setIsRecording(false);
-      }, 3000);
+    if (isRecording) {
+      omnidimWidgetRef.current?.endCall();
+    } else {
+      omnidimWidgetRef.current?.startCall();
+    }
+  };
+
+  const handleTextSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!textInput.trim()) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: textInput,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setTextInput("");
+
+    // Simulate assistant responses
+    const questions = [
+      "What best describes your sleeping habit? (Early sleeper, On-time sleeper, Night owl)",
+      "What best describes your diet? (Vegetarian, Vegan, Flexitarian, Non-vegetarian)",
+      "How clean and organized do you keep your space? (1-5 scale)",
+      "Which environment do you prefer in your living space? (Quiet, Balanced, Social)",
+      "How comfortable are you sharing things like food or utensils? (Not comfortable, Okay with some, Very open)"
+    ];
+
+    if (messages.length < questions.length * 2) {
+      const nextQuestion = questions[Math.floor(messages.length / 2)];
+      const assistantResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: nextQuestion,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantResponse]);
+    } else {
+      const completionMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: "Thank you for completing the survey! We'll use your responses to find the best roommate match for you.",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, completionMessage]);
     }
   };
 
@@ -93,8 +188,9 @@ const Survey = () => {
               <Button 
                 size="xl" 
                 variant="gradient" 
-                onClick={handleStartSurvey}
+                onClick={() => handleStartSurvey('voice')}
                 className="group"
+                disabled={!isOmnidimLoaded}
               >
                 <Mic className="mr-2 h-5 w-5 group-hover:animate-bounce-gentle" />
                 Start Voice Survey
@@ -104,12 +200,18 @@ const Survey = () => {
               <Button 
                 size="xl" 
                 variant="floating"
-                onClick={handleStartSurvey}
+                onClick={() => handleStartSurvey('text')}
               >
                 <MessageSquare className="mr-2 h-5 w-5" />
                 Use Text Instead
               </Button>
             </div>
+
+            {!isOmnidimLoaded && (
+              <div className="text-sm text-muted-foreground animate-pulse">
+                Loading voice assistant...
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -122,19 +224,19 @@ const Survey = () => {
         {/* Progress indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-            <span>Voice Survey</span>
+            <span>{inputMode === 'voice' ? 'Voice Survey' : 'Text Survey'}</span>
             <span>2-3 minutes</span>
           </div>
           <div className="w-full bg-border rounded-full h-2">
             <div 
               className="bg-gradient-primary h-2 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${(messages.length / 6) * 100}%` }}
+              style={{ width: `${(messages.filter(m => m.type === 'user').length / 5) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Chat messages */}
-        <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+        <div className="space-y-4 mb-6 max-h-[calc(100vh-250px)] overflow-y-auto">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -145,7 +247,7 @@ const Survey = () => {
                   ? 'bg-chat-user text-primary-foreground rounded-br-sm' 
                   : 'bg-chat-assistant text-secondary-foreground rounded-bl-sm'
               } shadow-soft`}>
-                <p className="leading-relaxed">{message.content}</p>
+                <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
                 <span className="text-xs opacity-70 mt-2 block">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -164,34 +266,67 @@ const Survey = () => {
               </Card>
             </div>
           )}
+
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Voice input controls */}
+        {/* Input controls */}
         <div className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-md border-t border-border p-4">
-          <div className="max-w-4xl mx-auto flex items-center justify-center space-x-4">
-            <Button
-              size="icon"
-              variant={isRecording ? "destructive" : "gradient"}
-              onClick={handleVoiceInput}
-              className={`h-16 w-16 rounded-full ${isRecording ? 'animate-pulse-soft' : 'hover:scale-110'} transition-all`}
-            >
-              <Mic className={`h-6 w-6 ${isRecording ? 'animate-bounce-gentle' : ''}`} />
-            </Button>
-            
-            <div className="text-center">
-              <p className="text-sm font-medium">
-                {isRecording ? "Listening..." : "Tap to speak"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Or type your response below
-              </p>
-            </div>
+          <div className="max-w-4xl mx-auto">
+            {inputMode === 'voice' ? (
+              <div className="flex items-center justify-center space-x-4">
+                <Button
+                  size="icon"
+                  variant={isRecording ? "destructive" : "gradient"}
+                  onClick={handleVoiceInput}
+                  className={`h-16 w-16 rounded-full ${isRecording ? 'animate-pulse-soft' : 'hover:scale-110'} transition-all`}
+                >
+                  <Mic className={`h-6 w-6 ${isRecording ? 'animate-bounce-gentle' : ''}`} />
+                </Button>
+                
+                <div className="text-center">
+                  <p className="text-sm font-medium">
+                    {isRecording ? "Listening..." : "Tap to speak"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Or <button 
+                      className="underline hover:text-primary" 
+                      onClick={() => setInputMode('text')}
+                    >
+                      switch to text input
+                    </button>
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleTextSubmit} className="flex gap-2">
+                <input
+                  type="text"
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  placeholder="Type your answer here..."
+                  className="flex-1 rounded-lg border border-border bg-background px-4 py-3 shadow-soft focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <Button type="submit" variant="gradient" size="lg">
+                  Send
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => setInputMode('voice')}
+                >
+                  <Mic className="mr-2 h-4 w-4" />
+                  Voice
+                </Button>
+              </form>
+            )}
 
-            {messages.length >= 4 && (
+            {messages.length >= 10 && (
               <Button
                 variant="floating"
                 onClick={handleContinueToProfile}
-                className="ml-auto"
+                className="mt-4 ml-auto"
               >
                 Review Profile
                 <ArrowRight className="ml-2 h-4 w-4" />

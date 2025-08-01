@@ -1,5 +1,5 @@
 import express from "express";
-import GuestProfile from "../models/GuestProfile";
+const GuestProfile = require("../models/GuestProfile");
 import { enrichProfile } from "../utils/profileEnrichment";
 
 const router = express.Router();
@@ -17,4 +17,4 @@ router.post("/", async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
