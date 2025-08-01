@@ -1,74 +1,87 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import pickle
-from database import responses_collection
+from pymongo import MongoClient
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import joblib
+import numpy as np
+import os
 
+# Load environment variables from .env
+load_dotenv()
+
+# MongoDB URI
+MONGO_URI = os.getenv("MONGO_URI")
+
+# Initialize MongoDB client
+try:
+    client = MongoClient(MONGO_URI)
+    db = client.get_database("roommate_ai")
+    collection = db.get_collection("predictions")
+    # Test connection
+    db.list_collection_names()
+except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
+
+# Load trained model
+try:
+    model = joblib.load("compatibility_model.pkl")
+except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Model loading failed: {e}")
+
+# FastAPI app setup
 app = FastAPI()
 
-# Allow frontend access
+# CORS middleware for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this in production
+    allow_origins=["*"],  # For development; restrict in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load the ML model
-try:
-    with open("compatibility_model.pkl", "rb") as f:
-        model = pickle.load(f)
-except Exception as e:
-    model = None
-    print(f"Error loading model: {e}")
-
-# Request schema
-class SurveyResponse(BaseModel):
-    age: int
+# Pydantic model for input
+class CompatibilityInput(BaseModel):
+    age_difference: int
     cleanliness: int
-    introvert_extrovert: int
-    wake_sleep: int
-    music: int
-    food: int
-    work_schedule: int
+    night_owl: int
+    introvert: int
+    noise_tolerance: int
+    cooking_frequency: int
 
 @app.get("/")
 def root():
     return {"message": "Roommate Compatibility API is running"}
 
 @app.get("/test-db")
-def test_database():
+def test_db_connection():
     try:
-        responses_collection.insert_one({"test": "connection success"})
-        return {"message": "Database connection successful!"}
+        collections = db.list_collection_names()
+        return {"message": "Database connected successfully", "collections": collections}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database connection failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
 
 @app.post("/predict")
-def predict_compatibility(response: SurveyResponse):
-    if model is None:
-        raise HTTPException(status_code=500, detail="Model not loaded")
-
-    # Convert input to model format
-    input_data = [[
-        response.age,
-        response.cleanliness,
-        response.introvert_extrovert,
-        response.wake_sleep,
-        response.music,
-        response.food,
-        response.work_schedule
-    ]]
-
+def predict_compatibility(data: CompatibilityInput):
     try:
+        input_data = np.array([[ 
+            data.age_difference,
+            data.cleanliness,
+            data.night_owl,
+            data.introvert,
+            data.noise_tolerance,
+            data.cooking_frequency
+        ]])
+
         prediction = model.predict(input_data)[0]
-        record = response.dict()
-        record["prediction"] = prediction
 
-        # Save to MongoDB
-        responses_collection.insert_one(record)
+        # Save result to MongoDB
+        record = data.dict()
+        record["compatibility_score"] = int(prediction)
+        collection.insert_one(record)
 
-        return {"compatibility_score": prediction}
+        return {"compatibility_score": int(prediction)}
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
