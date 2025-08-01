@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Roommate Matching App Design System - Soft, welcoming colors for women's co-living */
+
+@layer base {
+  :root {
+    /* Warm, welcoming backgrounds */
+    --background: 42 100% 98%;
+    --foreground: 240 10% 15%;
+
+    /* Card and surface colors */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
+
+    /* Primary: Soft lavender for main actions */
+    --primary: 270 35% 65%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 270 45% 85%;
+
+    /* Secondary: Sage green for supporting elements */
+    --secondary: 120 25% 75%;
+    --secondary-foreground: 240 10% 15%;
+    --secondary-glow: 120 35% 90%;
+
+    /* Muted: Warm neutral tones */
+    --muted: 30 20% 95%;
+    --muted-foreground: 240 8% 45%;
+
+    /* Accent: Soft pink for highlights */
+    --accent: 340 40% 85%;
+    --accent-foreground: 240 10% 15%;
+
+    /* Conversational UI colors */
+    --chat-user: 270 35% 65%;
+    --chat-assistant: 120 25% 75%;
+    --chat-bubble: 0 0% 100%;
+
+    /* Status colors */
+    --success: 120 40% 60%;
+    --warning: 45 90% 70%;
+    --destructive: 0 70% 65%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Interactive elements */
+    --border: 30 25% 90%;
+    --input: 30 25% 90%;
+    --ring: 270 35% 65%;
+
+    /* Beautiful gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(270 35% 65%), hsl(270 45% 85%));
+    --gradient-secondary: linear-gradient(135deg, hsl(120 25% 75%), hsl(120 35% 90%));
+    --gradient-warm: linear-gradient(135deg, hsl(42 100% 98%), hsl(30 20% 95%));
+    --gradient-accent: linear-gradient(135deg, hsl(340 40% 85%), hsl(320 30% 90%));
+
+    /* Elegant shadows */
+    --shadow-soft: 0 4px 20px hsl(270 35% 65% / 0.1);
+    --shadow-card: 0 8px 30px hsl(240 10% 15% / 0.08);
+    --shadow-floating: 0 12px 40px hsl(270 35% 65% / 0.15);
+
+    /* Smooth transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode with warm, cozy tones */
+    --background: 240 15% 8%;
+    --foreground: 42 50% 95%;
+
+    --card: 240 12% 12%;
+    --card-foreground: 42 50% 95%;
+
+    --popover: 240 12% 12%;
+    --popover-foreground: 42 50% 95%;
+
+    /* Softer primary in dark mode */
+    --primary: 270 40% 70%;
+    --primary-foreground: 240 15% 8%;
+    --primary-glow: 270 30% 45%;
+
+    /* Muted sage in dark mode */
+    --secondary: 120 20% 55%;
+    --secondary-foreground: 42 50% 95%;
+    --secondary-glow: 120 15% 35%;
+
+    --muted: 240 8% 18%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 340 30% 65%;
+    --accent-foreground: 42 50% 95%;
+
+    /* Dark mode conversational colors */
+    --chat-user: 270 40% 70%;
+    --chat-assistant: 120 20% 55%;
+    --chat-bubble: 240 12% 12%;
+
+    --success: 120 35% 55%;
+    --warning: 45 80% 65%;
+    --destructive: 0 65% 60%;
+    --destructive-foreground: 42 50% 95%;
+
+    --border: 240 8% 18%;
+    --input: 240 8% 18%;
+    --ring: 270 40% 70%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
