@@ -216,12 +216,7 @@ const Survey = () => {
               It takes just 2–3 minutes!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-              <Button variant="gradient" size="lg" onClick={() => handleStartSurvey('voice')}>
-                🎙️ Start Voice Survey
-              </Button>
-              <Button variant="outline" size="lg" onClick={() => handleStartSurvey('text')}>
-                💬 Use Text Instead
-              </Button>
+        
             </div>
             {!isOmnidimLoaded && user && (
               <div className="text-sm text-muted-foreground animate-pulse">
