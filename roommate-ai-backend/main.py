@@ -1,34 +1,25 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from dotenv import load_dotenv
 import joblib
 import numpy as np
 import os
+import requests
 
-# Load .env
+from firebase_admin import auth, firestore
+from firebase_admin._auth_utils import EmailAlreadyExistsError
+from database.firebase import (
+    db,
+    users_collection,
+    admin_emails_collection,
+    predictions_collection
+)
+
+
+# Load environment
 load_dotenv()
-
-# Mongo URI from .env
-MONGO_URI = os.getenv("MONGO_URI")
-
-# Initialize DB connection
-client = None
-db = None
-collection = None
-admin_collection = None
-user_collection = None
-
-try:
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    client.server_info()  # Trigger connection
-    db = client.get_database("roommate_ai")
-    collection = db.get_collection("predictions")
-    admin_collection = db.get_collection("admins")
-    user_collection = db.get_collection("users")
-except Exception as e:
-    print(f"⚠️ Warning: Database connection failed: {e}")
+FIREBASE_API_KEY = os.getenv("FIREBASE_API_KEY")
 
 # Load ML model
 try:
@@ -36,19 +27,17 @@ try:
 except Exception as e:
     raise HTTPException(status_code=500, detail=f"Model loading failed: {e}")
 
-# FastAPI app
 app = FastAPI()
 
-# Allow CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ⚠️ Change in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Request schemas
+# Schemas
 class CompatibilityInput(BaseModel):
     age_difference: int
     cleanliness: int
@@ -60,28 +49,46 @@ class CompatibilityInput(BaseModel):
 class EmailCheck(BaseModel):
     email: str
 
-class SignupInput(BaseModel):
+class LoginInput(BaseModel):
     email: str
+    password: str
 
+class FullSignupInput(BaseModel):
+    email: str
+    password: str
+    name: str
+
+# Routes
 @app.get("/")
 def root():
     return {"message": "Roommate Compatibility API is running"}
 
+@app.get("/check-admin")
+def check_admin(email: str):
+    admins_ref = db.collection("admins").where("email", "==", email).get()
+    is_admin = len(admins_ref) > 0
+    return {"is_admin": is_admin}
+
+@app.get("/matches")
+def get_matches():
+    try:
+        docs = predictions_collection.stream()
+        matches = [doc.to_dict() for doc in docs]
+        return {"matches": matches}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/test-db")
 def test_db_connection():
-    if db is None:
-        raise HTTPException(status_code=500, detail="No database connection")
     try:
-        collections = db.list_collection_names()
-        return {"message": "Database connected", "collections": collections}
+        collections = ["users", "admins", "predictions"]
+        return {"message": "Firebase connected", "collections": collections}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+        raise HTTPException(status_code=500, detail=f"Firebase error: {e}")
 
 @app.post("/predict")
 def predict_compatibility(data: CompatibilityInput):
-    if db is None or collection is None:
-        raise HTTPException(status_code=500, detail="Database not connected")
-
     try:
         input_data = np.array([[ 
             data.age_difference,
@@ -94,34 +101,91 @@ def predict_compatibility(data: CompatibilityInput):
         prediction = model.predict(input_data)[0]
         record = data.dict()
         record["compatibility_score"] = int(prediction)
-        collection.insert_one(record)
+        predictions_collection.add(record)
         return {"compatibility_score": int(prediction)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/check-admin")
 def check_admin(data: EmailCheck):
-    if db is None or admin_collection is None:
-        raise HTTPException(status_code=500, detail="Database not connected")
-
     try:
-        result = admin_collection.find_one({"email": data.email})
-        is_admin = result is not None
+        docs = admin_emails_collection.where("email", "==", data.email).stream()
+        is_admin = any(True for _ in docs)
         return {"is_admin": is_admin}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Admin check failed: {e}")
 
 @app.post("/signup")
-def signup_user(data: SignupInput):
-    if db is None or user_collection is None:
-        raise HTTPException(status_code=500, detail="Database not connected")
-
+def signup(data: FullSignupInput):
     try:
-        # check if user already exists
-        if user_collection.find_one({"email": data.email}):
-            return {"message": "User already exists", "email": data.email}
-        
-        user_collection.insert_one({"email": data.email})
-        return {"message": "User signed up successfully", "email": data.email}
+        # Create user and set password in one go via Identity Toolkit
+        resp = requests.post(
+            f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_API_KEY}",
+            json={
+                "email": data.email,
+                "password": data.password,
+                "returnSecureToken": True
+            }
+        )
+
+        if resp.status_code != 200:
+            raise Exception(f"Identity Toolkit error: {resp.json()}")
+
+        user_data = resp.json()
+        uid = user_data["localId"]
+
+        # Save user info to Firestore
+        users_collection.document(uid).set({
+            "email": data.email,
+            "name": data.name,
+            "created_at": firestore.SERVER_TIMESTAMP
+        })
+
+        return {
+            "message": "Signup successful",
+            "user": {
+                "id": uid,
+                "email": data.email,
+                "name": data.name
+            }
+        }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Signup failed: {e}")
+    
+
+@app.post("/login")
+def login(data: LoginInput):
+    # Step 1: Sign in user using Firebase Identity Toolkit
+    resp = requests.post(
+        f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}",
+        json={
+            "email": data.email,
+            "password": data.password,
+            "returnSecureToken": True
+        }
+    )
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    uid = resp.json()["localId"]
+
+    # Step 2: Get user's Firestore profile
+    try:
+        user_doc = users_collection.document(uid).get()
+        if not user_doc.exists:
+            raise HTTPException(status_code=404, detail="User profile not found")
+
+        user_data = user_doc.to_dict()
+
+        return {
+            "message": "Login successful",
+            "user": {
+                "id": uid,
+                "email": user_data["email"],
+                "name": user_data.get("name", "")
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Firestore error: {e}")
