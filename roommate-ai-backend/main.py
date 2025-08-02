@@ -16,6 +16,9 @@ from database.firebase import (
     predictions_collection
 )
 
+class SurveyResponse(BaseModel):
+    email: str
+    responses: dict
 
 # Load environment
 load_dotenv()
@@ -194,20 +197,25 @@ def login(data: LoginInput):
 @app.post("/survey-response")
 def save_survey_response(data: SurveyResponse):
     try:
-        # Fetch user's email from Firestore (users/{uid})
+        print("📥 Received survey data:", data.dict())
         user_doc = users_collection.document(data.uid).get()
+
         if not user_doc.exists:
+            print("❌ User not found in Firestore for UID:", data.uid)
             raise HTTPException(status_code=404, detail="User not found")
 
         user_data = user_doc.to_dict()
         user_email = user_data.get("email", "unknown")
 
-        # Save under users collection (merge to not overwrite other data)
+        print("✅ Found user:", user_email)
+        print("💾 Saving responses:", data.responses)
+
+        # Save to users
         users_collection.document(data.uid).set({
             "survey": data.responses
         }, merge=True)
 
-        # Save under predictions collection
+        # Save to predictions
         predictions_collection.add({
             "uid": data.uid,
             "email": user_email,
@@ -215,6 +223,7 @@ def save_survey_response(data: SurveyResponse):
             "timestamp": firestore.SERVER_TIMESTAMP
         })
 
+        print("✅ Survey saved successfully")
         return {"message": "Survey stored in users and predictions"}
 
     except Exception as e:

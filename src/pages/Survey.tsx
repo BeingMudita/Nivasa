@@ -82,6 +82,10 @@ const Survey = () => {
           setCurrentTranscript(transcript);
         },
         onCallStart: () => setIsRecording(true),
+        onKeywordsExtracted: (keywords: any) => {
+          console.log("Extracted keywords:", keywords);
+          setExtractedKeywords(keywords);
+        },
         onCallEnd: async () => {
           setIsRecording(false);
           setCurrentTranscript("");
@@ -95,6 +99,7 @@ const Survey = () => {
 
           try {
             const res = await fetch("http://localhost:8000/survey-response", {
+              
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -116,11 +121,7 @@ const Survey = () => {
             console.error("❌ Error submitting survey:", err);
           }
         },
-        onKeywordsExtracted: (keywords: any) => {
-          console.log("Extracted keywords:", keywords);
-          setExtractedKeywords(keywords);
-        }
-
+        
       });
     }
   };

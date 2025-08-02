@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, Edit2, Check, User, Home, Clock, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+
 interface UserProfile {
   name: string;
   age: number;
