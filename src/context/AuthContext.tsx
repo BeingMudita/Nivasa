@@ -6,7 +6,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  // Add other user properties as needed
+  isAdmin: boolean;
 }
 
 interface AuthContextType {
@@ -23,17 +23,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     const res = await axios.post("http://localhost:8000/login", { email, password });
-    setUser(res.data.user);
+    const fetchedUser = res.data.user;
+
+    // 🔍 Check admin status
+    const adminCheck = await axios.get("http://localhost:8000/check-admin", {
+      params: { email: fetchedUser.email },
+    });
+
+    setUser({ ...fetchedUser, isAdmin: adminCheck.data.is_admin });
   };
 
   const signup = async (email: string, password: string, name: string) => {
-    const res = await axios.post("http://localhost:8000/signup", {
-      email,
-      password,
-      name,
-    });
-    setUser(res.data.user);
-  };
+  console.log("Sending signup data:", { email, password, name });
+
+  const res = await axios.post(
+    "http://localhost:8000/signup",
+    { email, password, name },
+    {
+      headers: {
+        "Content-Type": "application/json", // ✅ make it explicit
+      },
+    }
+  );
+
+  const adminCheck = await axios.get("http://localhost:8000/check-admin", {
+    params: { email },
+  });
+
+  setUser({ ...res.data.user, name, isAdmin: adminCheck.data.is_admin });
+};
 
   const logout = () => setUser(null);
 
