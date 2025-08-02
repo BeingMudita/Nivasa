@@ -6,11 +6,6 @@ import joblib
 import numpy as np
 import os
 import requests
-from typing import Dict
-
-class SurveyResponse(BaseModel):
-    uid: str
-    responses: dict
 
 from firebase_admin import auth, firestore
 from firebase_admin._auth_utils import EmailAlreadyExistsError
