@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Mic, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext"; // Import your AuthContext
+import { useAuth } from "@/context/AuthContext";
 import heroImage from "@/assets/hero-illustration.jpg";
 
 declare global {
@@ -21,7 +21,7 @@ interface ChatMessage {
 
 const Survey = () => {
   const navigate = useNavigate();
-  const { user } = useAuth(); // Only load widget if user is authenticated
+  const { user } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -47,7 +47,7 @@ const Survey = () => {
   });
 
   useEffect(() => {
-    if (!user) return; // Don't load Omnidim unless user is logged in
+    if (!user) return;
 
     const script = document.createElement('script');
     script.id = 'omnidimension-web-widget';
@@ -90,38 +90,29 @@ const Survey = () => {
           setIsRecording(false);
           setCurrentTranscript("");
 
-          const uid = localStorage.getItem("uid"); // Or use user?.uid if available
-
+          const uid = localStorage.getItem("uid");
           if (!uid) {
             console.error("❌ No UID found, cannot submit survey");
             return;
           }
 
           try {
-            const res = await fetch("http://localhost:8000/survey-response", {
-              
+            const res = await fetch("http://localhost:8000/predict-compatibility/", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                uid,
-                responses: extractedKeywords
-              })
+              body: JSON.stringify({ responses: extractedKeywords })
             });
 
-            if (!res.ok) {
-              throw new Error("Failed to submit survey");
-            }
+            if (!res.ok) throw new Error("Failed to submit survey");
 
             const data = await res.json();
-            console.log("✅ Survey submitted:", data);
+            console.log("✅ Compatibility result:", data);
 
-            // Redirect to matches or profile review
             navigate("/matches");
           } catch (err) {
-            console.error("❌ Error submitting survey:", err);
+            console.error("❌ Error submitting compatibility data:", err);
           }
         },
-        
       });
     }
   };
@@ -222,10 +213,15 @@ const Survey = () => {
             </h1>
             <p className="text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
               Our AI assistant will ask you a few friendly questions to understand your lifestyle and preferences.
-              It takes just 2-3 minutes!
+              It takes just 2–3 minutes!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-              
+              <Button variant="gradient" size="lg" onClick={() => handleStartSurvey('voice')}>
+                🎙️ Start Voice Survey
+              </Button>
+              <Button variant="outline" size="lg" onClick={() => handleStartSurvey('text')}>
+                💬 Use Text Instead
+              </Button>
             </div>
             {!isOmnidimLoaded && user && (
               <div className="text-sm text-muted-foreground animate-pulse">
@@ -244,7 +240,7 @@ const Survey = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
             <span>{inputMode === 'voice' ? 'Voice Survey' : 'Text Survey'}</span>
-            <span>2-3 minutes</span>
+            <span>2–3 minutes</span>
           </div>
           <div className="w-full bg-border rounded-full h-2">
             <div
