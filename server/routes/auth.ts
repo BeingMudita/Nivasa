@@ -1,15 +1,12 @@
 import express from "express";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
-
 dotenv.config();
 const router = express.Router();
-
 const uri = process.env.MONGO_URI!;
 const client = new MongoClient(uri);
 const db = client.db("nivasa");
 const adminCollection = db.collection("admin_emails");
-
 router.post("/check-admin", async (req, res) => {
   try {
     const { email } = req.body;
@@ -21,4 +18,4 @@ router.post("/check-admin", async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
