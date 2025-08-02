@@ -60,7 +60,6 @@ const Navigation = () => {
                 </Button>
               );
             })}
-
             {/* Login/Logout Button */}
             {!user ? (
               <Button
