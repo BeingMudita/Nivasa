@@ -6,6 +6,11 @@ import joblib
 import numpy as np
 import os
 import requests
+from typing import Dict
+
+class SurveyResponse(BaseModel):
+    uid: str
+    responses: dict
 
 from firebase_admin import auth, firestore
 from firebase_admin._auth_utils import EmailAlreadyExistsError
@@ -189,3 +194,34 @@ def login(data: LoginInput):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Firestore error: {e}")
+    
+
+@app.post("/survey-response")
+def save_survey_response(data: SurveyResponse):
+    try:
+        # Fetch user's email from Firestore (users/{uid})
+        user_doc = users_collection.document(data.uid).get()
+        if not user_doc.exists:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user_data = user_doc.to_dict()
+        user_email = user_data.get("email", "unknown")
+
+        # Save under users collection (merge to not overwrite other data)
+        users_collection.document(data.uid).set({
+            "survey": data.responses
+        }, merge=True)
+
+        # Save under predictions collection
+        predictions_collection.add({
+            "uid": data.uid,
+            "email": user_email,
+            "responses": data.responses,
+            "timestamp": firestore.SERVER_TIMESTAMP
+        })
+
+        return {"message": "Survey stored in users and predictions"}
+
+    except Exception as e:
+        print("🔥 Error saving survey:", e)
+        raise HTTPException(status_code=500, detail=f"Failed to save survey: {e}")
