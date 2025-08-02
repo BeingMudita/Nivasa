@@ -6,7 +6,7 @@ import joblib
 import numpy as np
 import os
 import requests
-
+from firebase_admin import auth, firestore
 from firebase_admin import auth, firestore
 from firebase_admin._auth_utils import EmailAlreadyExistsError
 from database.firebase import (
