@@ -10,11 +10,10 @@ import requests
 from firebase_admin import auth, firestore
 from firebase_admin._auth_utils import EmailAlreadyExistsError
 from database.firebase import (
-    db,
     users_collection,
-    admin_emails_collection,
     predictions_collection
 )
+
 
 class SurveyResponse(BaseModel):
     uid: str
@@ -60,7 +59,17 @@ class LoginInput(BaseModel):
 class FullSignupInput(BaseModel):
     email: str
     password: str
-    name: str
+    first_name: str
+    last_name: str
+    role: str
+
+    class Config:
+        allow_population_by_field_name = True
+        fields = {
+            "first_name": "firstName",
+            "last_name": "lastName"
+        }
+
 
 # Routes
 @app.get("/")
@@ -132,28 +141,44 @@ def check_admin(data: EmailCheck):
 @app.post("/signup")
 def signup(data: FullSignupInput):
     try:
-        # 1. Create Firebase user
+        # 1. Check if user already exists in Firebase Auth
+        resp_check = requests.post(
+            f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}",
+            json={"email": data.email, "password": data.password, "returnSecureToken": True}
+        )
+        if resp_check.status_code == 200:
+            # Email exists and password matches → login existing user
+            uid = resp_check.json()["localId"]
+            user_doc = users_collection.document(uid).get()
+            user_data = user_doc.to_dict() if user_doc.exists else {}
+            return {
+                "message": "Email already registered, logging in...",
+                "user": {
+                    "id": uid,
+                    "email": data.email,
+                    "firstName": user_data.get("firstName", data.first_name),
+                    "lastName": user_data.get("lastName", data.last_name),
+                    "role": user_data.get("role", data.role)
+                }
+            }
+        
+        # 2. If email not registered, create new user
         resp = requests.post(
             f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_API_KEY}",
-            json={
-                "email": data.email,
-                "password": data.password,
-                "returnSecureToken": True
-            }
+            json={"email": data.email, "password": data.password, "returnSecureToken": True}
         )
         if resp.status_code != 200:
-            raise Exception(f"Identity Toolkit error: {resp.json()}")
+            raise Exception(resp.json())
 
         user_data = resp.json()
         uid = user_data["localId"]
 
-        # 2. Save profile in Firestore
+        # Save profile in Firestore
         users_collection.document(uid).set({
             "email": data.email,
             "firstName": data.first_name,
             "lastName": data.last_name,
-            "role": data.role,
-            "created_at": firestore.SERVER_TIMESTAMP
+            "role": data.role
         })
 
         return {
@@ -170,7 +195,10 @@ def signup(data: FullSignupInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Signup failed: {e}")
 
-    
+    except Exception as e:
+        print("Signup exception:", e)
+        raise HTTPException(status_code=500, detail=f"Signup failed: {e}")
+
 
 @app.post("/login")
 def login(data: LoginInput):

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Home } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 export default function Login() {
   const { user, login, signup } = useAuth();
@@ -27,7 +27,6 @@ export default function Login() {
     firstName: '',
     lastName: '',
     role: 'student',
-    username: '', // Add username property
   });
 
   useEffect(() => {
@@ -87,11 +86,10 @@ export default function Login() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Home className="w-6 h-6 text-white" />
+              <Heart className="h-4 w-4 text-primary-foreground" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Nivasa</h1>
           </div>
-          <CardTitle>Welcome</CardTitle>
           <CardDescription>
             Find your perfect roommate & living space with AI ✨
           </CardDescription>
@@ -188,7 +186,6 @@ export default function Login() {
                       <SelectValue placeholder="Select your role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
                       <SelectItem value="roommate">Roommate</SelectItem>
                       <SelectItem value="landlord">Landlord</SelectItem>
                     </SelectContent>

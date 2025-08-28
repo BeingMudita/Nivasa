@@ -1,5 +1,5 @@
 // src/context/AuthContext.tsx
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import axios from "axios";
 
 interface User {
@@ -32,33 +32,43 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // 🔹 LOGIN
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  // LOGIN
   const login = async (email: string, password: string) => {
     const res = await axios.post("http://localhost:8000/login", { email, password });
     const fetchedUser = res.data.user;
 
-    // 🔍 Check admin status
+    // Check admin status
     const adminCheck = await axios.get("http://localhost:8000/check-admin", {
       params: { email: fetchedUser.email },
     });
 
-    setUser({
+    const userData = {
       ...fetchedUser,
       isAdmin: adminCheck.data.is_admin,
-    });
+    };
+
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+    window.location.href = "http://localhost:5173/";
   };
 
-  // 🔹 SIGNUP
+  // SIGNUP
   const signup = async (data: SignupData) => {
-    console.log("Sending signup data:", data);
-
     const res = await axios.post(
       "http://localhost:8000/signup",
       {
         email: data.email,
         password: data.password,
-        first_name: data.firstName,
-        last_name: data.lastName,
+        firstName: data.firstName,
+        lastName: data.lastName,
         role: data.role,
       },
       {
@@ -68,22 +78,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // 🔍 Check admin status
+    // Check admin status
     const adminCheck = await axios.get("http://localhost:8000/check-admin", {
       params: { email: data.email },
     });
 
-    setUser({
+    const userData = {
       ...res.data.user,
       firstName: data.firstName,
       lastName: data.lastName,
       role: data.role,
       createdAt: res.data.user.createdAt || new Date().toISOString(),
       isAdmin: adminCheck.data.is_admin,
-    });
+    };
+
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+    window.location.href = "http://localhost:5173/";
   };
 
-  const logout = () => setUser(null);
+  // LOGOUT
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+    window.location.href = "http://localhost:5173/auth";
+  };
 
   return (
     <AuthContext.Provider value={{ user, login, signup, logout }}>
