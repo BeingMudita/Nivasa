@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -6,7 +6,39 @@ import joblib
 import numpy as np
 import os
 import requests
+from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional, Dict, Any
+import firebase_admin
+from firebase_admin import credentials, firestore
+import datetime
+from database.firebase import users_collection, predictions_collection
 
+
+# Initialize Firestore
+db = firestore.client()
+users_collection = db.collection('users')
+survey_responses_collection = db.collection('predictions')
+
+app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class ProfileUpdate(BaseModel):
+    uid: str
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    age: Optional[int] = None
+    occupation: Optional[str] = None
+    bio: Optional[str] = None
+    schedule: Optional[str] = None
+    budget: Optional[str] = None
 from firebase_admin import auth, firestore
 from firebase_admin._auth_utils import EmailAlreadyExistsError
 from database.firebase import (
@@ -243,7 +275,8 @@ def login(data: LoginInput):
 def save_survey_response(data: SurveyResponse):
     try:
         print("📥 Received survey data:", data.dict())
-        user_doc = users_collection.document(data.uid).get()
+        user_doc_ref = users_collection.document(data.uid)
+        user_doc = user_doc_ref.get()
 
         if not user_doc.exists:
             print("❌ User not found in Firestore for UID:", data.uid)
@@ -255,12 +288,14 @@ def save_survey_response(data: SurveyResponse):
         print("✅ Found user:", user_email)
         print("💾 Saving responses:", data.responses)
 
-        # Save to users
-        users_collection.document(data.uid).set({
-            "survey": data.responses
+        # Save all responses in one document per user
+        user_doc_ref.set({
+            "email": user_email,
+            "responses": data.responses,
+            "timestamp": firestore.SERVER_TIMESTAMP
         }, merge=True)
 
-        # Save to predictions
+        # Optionally, store in predictions collection for history/log
         predictions_collection.add({
             "uid": data.uid,
             "email": user_email,
@@ -269,10 +304,71 @@ def save_survey_response(data: SurveyResponse):
         })
 
         print("✅ Survey saved successfully")
-        return {"message": "Survey stored in users and predictions"}
+        return {"message": "Survey stored successfully"}
 
     except Exception as e:
         print("🔥 Error saving survey:", e)
         raise HTTPException(status_code=500, detail=f"Failed to save survey: {e}")
 
+@app.get("/user-profile")
+async def get_user_profile(uid: str = Query(...)):
+    try:
+        # First try to get from surveyResponses collection
+        survey_doc = survey_responses_collection.document(uid).get()
+        if survey_doc.exists:
+            survey_data = survey_doc.to_dict()
+            return {
+                "profile": {
+                    "firstName": survey_data.get("firstName", ""),
+                    "lastName": survey_data.get("lastName", ""),
+                    "email": survey_data.get("email", ""),
+                    "age": survey_data.get("age", 0),
+                    "occupation": survey_data.get("occupation", ""),
+                    "bio": survey_data.get("bio", ""),
+                    "schedule": survey_data.get("schedule", ""),
+                    "budget": survey_data.get("budget", ""),
+                    "role": survey_data.get("role", ""),
+                    "createdAt": survey_data.get("createdAt", ""),
+                    "survey": {
+                        "sleep_pattern": survey_data.get("sleep_pattern", ""),
+                        "diet_type": survey_data.get("diet_type", ""),
+                        "sharing_comfort": survey_data.get("sharing_comfort", ""),
+                        "cleanliness_score": survey_data.get("cleanliness_score", ""),
+                        "conflict_style": survey_data.get("conflict_style", ""),
+                        "autonomy": survey_data.get("autonomy", "")
+                    }
+                }
+            }
+        
+        # Fallback to users collection
+        user_doc = users_collection.document(uid).get()
+        if not user_doc.exists:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user_data = user_doc.to_dict()
+        profile = {
+            "firstName": user_data.get("firstName", ""),
+            "lastName": user_data.get("lastName", ""),
+            "email": user_data.get("email", ""),
+            "role": user_data.get("role", ""),
+            "createdAt": user_data.get("createdAt", ""),
+            "survey": user_data.get("survey", {})
+        }
+        return {"profile": profile}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/update-profile")
+async def update_profile(profile_update: ProfileUpdate):
+    try:
+        # Update in surveyResponses collection
+        survey_ref = survey_responses_collection.document(profile_update.uid)
+        update_data = {k: v for k, v in profile_update.dict().items() if v is not None and k != 'uid'}
+        update_data['updatedAt'] = datetime.datetime.now()
+        
+        survey_ref.set(update_data, merge=True)
+
+        
+        return {"message": "Profile updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

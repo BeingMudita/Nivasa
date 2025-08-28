@@ -1,13 +1,11 @@
 import firebase_admin
-from firebase_admin import credentials, firestore, auth
+from firebase_admin import credentials, firestore
 
-# Initialize Firebase app (only once)
-cred = credentials.Certificate("firebase_key.json")
-firebase_admin.initialize_app(cred)
+# Only initialize if no app exists
+if not firebase_admin._apps:
+    cred = credentials.Certificate("firebase_key.json")
+    firebase_admin.initialize_app(cred)
 
-# Firestore client
 db = firestore.client()
-
-# Collections
 users_collection = db.collection("users")
 predictions_collection = db.collection("predictions")
