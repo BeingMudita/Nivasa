@@ -69,9 +69,19 @@ def root():
 
 @app.get("/check-admin")
 def check_admin(email: str):
-    admins_ref = db.collection("admins").where("email", "==", email).get()
-    is_admin = len(admins_ref) > 0
-    return {"is_admin": is_admin}
+    try:
+        # Look up user by email
+        users_ref = users_collection.where("email", "==", email).limit(1).get()
+        if not users_ref:
+            return {"is_admin": False}
+
+        user_doc = users_ref[0].to_dict()
+        is_admin = user_doc.get("role", "").lower() == "admin"
+
+        return {"is_admin": is_admin}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Admin check failed: {e}")
 
 @app.get("/matches")
 def get_matches():
@@ -122,7 +132,7 @@ def check_admin(data: EmailCheck):
 @app.post("/signup")
 def signup(data: FullSignupInput):
     try:
-        # Create user and set password in one go via Identity Toolkit
+        # 1. Create Firebase user
         resp = requests.post(
             f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_API_KEY}",
             json={
@@ -131,17 +141,18 @@ def signup(data: FullSignupInput):
                 "returnSecureToken": True
             }
         )
-
         if resp.status_code != 200:
             raise Exception(f"Identity Toolkit error: {resp.json()}")
 
         user_data = resp.json()
         uid = user_data["localId"]
 
-        # Save user info to Firestore
+        # 2. Save profile in Firestore
         users_collection.document(uid).set({
             "email": data.email,
-            "name": data.name,
+            "firstName": data.first_name,
+            "lastName": data.last_name,
+            "role": data.role,
             "created_at": firestore.SERVER_TIMESTAMP
         })
 
@@ -150,12 +161,15 @@ def signup(data: FullSignupInput):
             "user": {
                 "id": uid,
                 "email": data.email,
-                "name": data.name
+                "firstName": data.first_name,
+                "lastName": data.last_name,
+                "role": data.role
             }
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Signup failed: {e}")
+
     
 
 @app.post("/login")
@@ -187,8 +201,10 @@ def login(data: LoginInput):
             "message": "Login successful",
             "user": {
                 "id": uid,
-                "email": user_data["email"],
-                "name": user_data.get("name", "")
+                "email": user_data.get("email", ""),
+                "firstName": user_data.get("firstName", ""),
+                "lastName": user_data.get("lastName", ""),
+                "role": user_data.get("role", "")
             }
         }
     except Exception as e:
