@@ -145,7 +145,7 @@ const Survey = () => {
     }
   };
 
-  const handleBack = () => {
+   const handleBack = () => {
     if (currentQuestionIndex > 0) {
       // Remove the last question and user response
       const newIndex = currentQuestionIndex - 1;
@@ -168,6 +168,9 @@ const Survey = () => {
         delete newResponses[currentQuestion.mlField];
         return newResponses;
       });
+    } else {
+      // If we're on the first question, going back should go to home
+      navigate("/");
     }
   };
 
