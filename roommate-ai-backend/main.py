@@ -13,6 +13,36 @@ from firebase_admin import credentials, firestore
 import datetime
 from database.firebase import users_collection, predictions_collection
 
+# 🔹 Mapping free-form survey answers → standardized values for ML
+ANSWER_MAPPINGS = {
+    "sleep_pattern": {
+        "early": "Early",
+        "night owl": "Night owl",
+        "on-time": "On-time"
+    },
+    "diet_type": {
+        "vegetarian": "Vegetarian",
+        "non-vegetarian": "Non-vegetarian",
+        "flexitarian": "Flexitarian",
+        "vegan": "Vegan"
+    },
+    "cleanliness_score": {
+        "messy": 1,
+        "average": 3,
+        "clean": 5
+    },
+    "sociability": {
+        "chill": "Social/Chill",
+        "balanced": "Balanced",
+        "outgoing": "Outgoing"
+    },
+    "sharing_comfort": {
+        "comfortable": "Very open",
+        "fine with it": "Somewhat okay",
+        "not comfortable": "Not comfortable"
+    }
+}
+
 
 # Initialize Firestore
 db = firestore.client()
@@ -93,14 +123,17 @@ class FullSignupInput(BaseModel):
     password: str
     first_name: str
     last_name: str
+    apartment_name: Optional[str] = None
     role: str
 
     class Config:
         allow_population_by_field_name = True
         fields = {
             "first_name": "firstName",
-            "last_name": "lastName"
+            "last_name": "lastName",
+            "apartment_name": "apartmentName"
         }
+
 
 
 # Routes
@@ -190,6 +223,7 @@ def signup(data: FullSignupInput):
                     "email": data.email,
                     "firstName": user_data.get("firstName", data.first_name),
                     "lastName": user_data.get("lastName", data.last_name),
+                    "apartmentName": user_data.get("apartmentName", data.apartment_name),
                     "role": user_data.get("role", data.role)
                 }
             }
@@ -210,6 +244,7 @@ def signup(data: FullSignupInput):
             "email": data.email,
             "firstName": data.first_name,
             "lastName": data.last_name,
+            "apartmentName": data.apartment_name,
             "role": data.role
         })
 
@@ -220,17 +255,13 @@ def signup(data: FullSignupInput):
                 "email": data.email,
                 "firstName": data.first_name,
                 "lastName": data.last_name,
+                "apartmentName": data.apartment_name,
                 "role": data.role
             }
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Signup failed: {e}")
-
-    except Exception as e:
-        print("Signup exception:", e)
-        raise HTTPException(status_code=500, detail=f"Signup failed: {e}")
-
 
 @app.post("/login")
 def login(data: LoginInput):
@@ -274,41 +305,47 @@ def login(data: LoginInput):
 @app.post("/survey-response")
 def save_survey_response(data: SurveyResponse):
     try:
-        print("📥 Received survey data:", data.dict())
         user_doc_ref = users_collection.document(data.uid)
         user_doc = user_doc_ref.get()
 
         if not user_doc.exists:
-            print("❌ User not found in Firestore for UID:", data.uid)
             raise HTTPException(status_code=404, detail="User not found")
 
         user_data = user_doc.to_dict()
         user_email = user_data.get("email", "unknown")
 
-        print("✅ Found user:", user_email)
-        print("💾 Saving responses:", data.responses)
+        responses = data.responses
 
-        # Save all responses in one document per user
+        # 🔹 Transform responses → standardized format for ML
+        formatted = {
+            "id": data.uid,
+            "sleep": ANSWER_MAPPINGS["sleep_pattern"].get(responses.get("sleep_pattern", "").lower(), "Unknown"),
+            "eating": ANSWER_MAPPINGS["diet_type"].get(responses.get("diet_type", "").lower(), "Unknown"),
+            "cleanliness": ANSWER_MAPPINGS["cleanliness_score"].get(responses.get("cleanliness_score", "").lower(), 3),
+            "sociability": ANSWER_MAPPINGS["sociability"].get(responses.get("sociability", "").lower(), "Balanced"),
+            "sharing": ANSWER_MAPPINGS["sharing_comfort"].get(responses.get("sharing_comfort", "").lower(), "Somewhat okay"),
+        }
+
+        # Save in users
         user_doc_ref.set({
             "email": user_email,
-            "responses": data.responses,
+            "responses": responses,
+            "formatted": formatted,   # 🔹 Keep structured version
             "timestamp": firestore.SERVER_TIMESTAMP
         }, merge=True)
 
-        # Optionally, store in predictions collection for history/log
+        # Save in predictions collection
         predictions_collection.add({
-            "uid": data.uid,
+            **formatted,
             "email": user_email,
-            "responses": data.responses,
             "timestamp": firestore.SERVER_TIMESTAMP
         })
 
-        print("✅ Survey saved successfully")
-        return {"message": "Survey stored successfully"}
+        return {"message": "Survey stored successfully", "formatted": formatted}
 
     except Exception as e:
-        print("🔥 Error saving survey:", e)
         raise HTTPException(status_code=500, detail=f"Failed to save survey: {e}")
+
 
 @app.get("/user-profile")
 async def get_user_profile(uid: str = Query(...)):

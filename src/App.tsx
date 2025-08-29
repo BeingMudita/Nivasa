@@ -12,7 +12,7 @@ import Matches from "./pages/Matches";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import LoginSignup from "./pages/LoginSignup";
-import ProtectedRoute from "./components/protectedRoute"; // ✅ import it
+import ProtectedRoute from "./components/protectedRoute";
 
 const queryClient = new QueryClient();
 

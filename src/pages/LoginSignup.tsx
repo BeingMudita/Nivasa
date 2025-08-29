@@ -26,6 +26,7 @@ export default function Login() {
     password: '',
     firstName: '',
     lastName: '',
+    apartmentName: '',
     role: 'student',
   });
 
@@ -59,26 +60,44 @@ export default function Login() {
   };
 
   const handleSignup = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  try {
-    await signup(signupData); // ✅ no username
-    toast({
-      title: "Account created!",
-      description: "Your Nivasa account has been created successfully.",
-    });
-  } catch (error: any) {
-    toast({
-      title: "Signup failed",
-      description: error.message || "Failed to create account. Please try again.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+    // Validate required fields
+    if (!signupData.firstName.trim() || !signupData.lastName.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide both first and last name.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
 
+    try {
+      await signup({
+        email: signupData.email,
+        password: signupData.password,
+        firstName: signupData.firstName.trim(),
+        lastName: signupData.lastName.trim(),
+        apartmentName: signupData.apartmentName.trim(),
+        role: signupData.role
+      });
+      
+      toast({
+        title: "Account created!",
+        description: "Your Nivasa account has been created successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Signup failed",
+        description: error.message || "Failed to create account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -137,7 +156,7 @@ export default function Login() {
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="firstName">First Name *</Label>
                     <Input
                       id="firstName"
                       placeholder="First name"
@@ -147,7 +166,7 @@ export default function Login() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
+                    <Label htmlFor="lastName">Last Name *</Label>
                     <Input
                       id="lastName"
                       placeholder="Last name"
@@ -157,8 +176,22 @@ export default function Login() {
                     />
                   </div>
                 </div>
+                
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="apartmentName">Apartment/Building Name</Label>
+                  <Input
+                    id="apartmentName"
+                    placeholder="e.g., Skyline Towers, Maple Apartments"
+                    value={signupData.apartmentName}
+                    onChange={(e) => setSignupData({ ...signupData, apartmentName: e.target.value })}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    This helps match you with roommates in the same building
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email *</Label>
                   <Input
                     id="signup-email"
                     type="email"
@@ -169,7 +202,7 @@ export default function Login() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
+                  <Label htmlFor="signup-password">Password *</Label>
                   <Input
                     id="signup-password"
                     type="password"
@@ -180,8 +213,11 @@ export default function Login() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={signupData.role} onValueChange={(value) => setSignupData({ ...signupData, role: value })}>
+                  <Label htmlFor="role">Role *</Label>
+                  <Select 
+                    value={signupData.role} 
+                    onValueChange={(value) => setSignupData({ ...signupData, role: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select your role" />
                     </SelectTrigger>
