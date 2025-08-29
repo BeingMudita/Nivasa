@@ -1,19 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Mic, ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import heroImage from "@/assets/hero-illustration.jpg";
 import { surveyQuestions } from "@/data/surveyQuestions";
-
-
 
 interface ChatMessage {
   id: string;
   type: "user" | "assistant";
   content: string;
   timestamp: Date;
+  options?: Array<{label: string, value: string | number}>;
 }
 
 const Survey = () => {
@@ -21,9 +20,8 @@ const Survey = () => {
   const { user } = useAuth();
   const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [textInput, setTextInput] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userResponses, setUserResponses] = useState<Record<string, string>>({});
+  const [userResponses, setUserResponses] = useState<Record<string, string | number>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,34 +44,33 @@ const Survey = () => {
       type: "assistant",
       content: surveyQuestions[0].question,
       timestamp: new Date(),
+      options: surveyQuestions[0].options
     };
 
     setMessages([welcomeMessage, firstQuestion]);
   };
 
-  const handleTextSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!textInput.trim() || !user) return;
+  const handleOptionSelect = (value: string | number) => {
+    if (!user) return;
 
     const currentQuestion = surveyQuestions[currentQuestionIndex];
-
-    // Add user message
+    
+    // Add user's selection as a message
+    const selectedOption = currentQuestion.options.find(opt => opt.value === value);
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       type: "user",
-      content: textInput,
+      content: selectedOption ? selectedOption.label : String(value),
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, userMessage]);
 
-    // Save locally
-    setUserResponses((prev) => ({
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Save response
+    setUserResponses(prev => ({
       ...prev,
-      [currentQuestion.id]: textInput,
+      [currentQuestion.mlField]: value
     }));
-
-    // Clear input
-    setTextInput("");
 
     // Move to next question or finish
     if (currentQuestionIndex < surveyQuestions.length - 1) {
@@ -86,21 +83,21 @@ const Survey = () => {
           type: "assistant",
           content: nextQuestion.question,
           timestamp: new Date(),
+          options: nextQuestion.options
         };
-        setMessages((prev) => [...prev, assistantMessage]);
+        setMessages(prev => [...prev, assistantMessage]);
         setCurrentQuestionIndex(nextQuestionIndex);
-      }, 500);
+      }, 800);
     } else {
-      // Survey completed: send all responses at once
+      // Survey completed
       setTimeout(async () => {
         const completionMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           type: "assistant",
-          content:
-            "Thank you for completing the survey! We'll use your responses to find the best roommate match for you.",
+          content: "Thank you for completing the survey! We'll use your responses to find the best roommate match for you.",
           timestamp: new Date(),
         };
-        setMessages((prev) => [...prev, completionMessage]);
+        setMessages(prev => [...prev, completionMessage]);
 
         try {
           const payload = {
@@ -127,7 +124,33 @@ const Survey = () => {
         } catch (err) {
           console.error("Error sending survey to backend:", err);
         }
-      }, 500);
+      }, 800);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentQuestionIndex > 0) {
+      // Remove the last question and user response
+      const newIndex = currentQuestionIndex - 1;
+      setCurrentQuestionIndex(newIndex);
+      
+      // Keep messages up to the previous question
+      const assistantMessages = messages.filter(msg => msg.type === 'assistant');
+      const lastAssistantIndex = assistantMessages.length - 1;
+      
+      if (lastAssistantIndex >= 1) {
+        const keepUntilId = assistantMessages[lastAssistantIndex - 1].id;
+        const keepUntilIndex = messages.findIndex(msg => msg.id === keepUntilId);
+        setMessages(prev => prev.slice(0, keepUntilIndex + 1));
+      }
+      
+      // Remove the last response
+      const currentQuestion = surveyQuestions[newIndex];
+      setUserResponses(prev => {
+        const newResponses = {...prev};
+        delete newResponses[currentQuestion.mlField];
+        return newResponses;
+      });
     }
   };
 
@@ -157,20 +180,19 @@ const Survey = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
               {user ? (
-              <Button 
-                size="lg" 
-                variant="gradient" 
-                onClick={handleStartSurvey}
-                className="text-lg px-8 py-6"
-              >
-                Start Survey
-              </Button>
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                Please <span className="text-primary cursor-pointer" onClick={() => navigate("/auth")}>log in</span> to start the survey.
-              </p>
-            )}
-
+                <Button 
+                  size="lg" 
+                  variant="gradient" 
+                  onClick={handleStartSurvey}
+                  className="text-lg px-8 py-6"
+                >
+                  Start Survey
+                </Button>
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  Please <span className="text-primary cursor-pointer" onClick={() => navigate("/auth")}>log in</span> to start the survey.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -178,23 +200,34 @@ const Survey = () => {
     );
   }
 
-  const isSurveyComplete = currentQuestionIndex >= surveyQuestions.length - 1 && 
-                          messages[messages.length - 1]?.type === 'assistant' &&
-                          messages[messages.length - 1]?.content.includes("Thank you");
+  const isSurveyComplete = currentQuestionIndex >= surveyQuestions.length;
+  const currentQuestion = surveyQuestions[currentQuestionIndex];
+  const lastMessage = messages[messages.length - 1];
 
   return (
     <div className="min-h-screen bg-gradient-warm">
       <div className="max-w-4xl mx-auto p-4 pt-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-            <span>Roommate Compatibility Survey</span>
-            <span>{currentQuestionIndex + 1} of {surveyQuestions.length}</span>
-          </div>
-          <div className="w-full bg-border rounded-full h-2">
-            <div
-              className="bg-gradient-primary h-2 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${((currentQuestionIndex + 1) / surveyQuestions.length) * 100}%` }}
-            />
+        <div className="mb-8 flex items-center">
+          {currentQuestionIndex > 0 && !isSurveyComplete && (
+            <Button 
+              variant="ghost" 
+              onClick={handleBack}
+              className="mr-4"
+            >
+              <ChevronLeft className="w-4 h-4" /> Back
+            </Button>
+          )}
+          <div className="flex-1">
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+              <span>Roommate Compatibility Survey</span>
+              <span>{currentQuestionIndex + 1} of {surveyQuestions.length}</span>
+            </div>
+            <div className="w-full bg-border rounded-full h-2">
+              <div
+                className="bg-gradient-primary h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${((currentQuestionIndex + 1) / surveyQuestions.length) * 100}%` }}
+              />
+            </div>
           </div>
         </div>
 
@@ -210,6 +243,22 @@ const Survey = () => {
                   : 'bg-chat-assistant text-secondary-foreground rounded-bl-sm'
               } shadow-soft`}>
                 <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                
+                {message.options && (
+                  <div className="mt-3 space-y-2">
+                    {message.options.map((option, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        className="w-full text-left justify-start h-auto py-2 whitespace-normal"
+                        onClick={() => handleOptionSelect(option.value)}
+                      >
+                        {option.label}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+                
                 <span className="text-xs opacity-70 mt-2 block">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -221,26 +270,7 @@ const Survey = () => {
 
         <div className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-md border-t border-border p-4">
           <div className="max-w-4xl mx-auto">
-            {!isSurveyComplete ? (
-              <form onSubmit={handleTextSubmit} className="flex gap-2">
-                <input
-                  type="text"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Type your answer here..."
-                  className="flex-1 rounded-lg border border-border bg-background px-4 py-3 shadow-soft focus:outline-none focus:ring-2 focus:ring-primary"
-                  disabled={messages[messages.length - 1]?.type !== 'assistant'}
-                />
-                <Button 
-                  type="submit" 
-                  variant="gradient" 
-                  size="lg"
-                  disabled={!textInput.trim() || messages[messages.length - 1]?.type !== 'assistant'}
-                >
-                  Send
-                </Button>
-              </form>
-            ) : (
+            {isSurveyComplete ? (
               <div className="text-center">
                 <Button
                   variant="floating"
@@ -249,6 +279,10 @@ const Survey = () => {
                 >
                   View Your Matches <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground">
+                <p>Select an option above to continue</p>
               </div>
             )}
           </div>

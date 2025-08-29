@@ -1,48 +1,61 @@
 export const surveyQuestions = [
   {
-    id: "sleep_pattern",
-    question: "It’s a chill weekend night. How would you most likely spend it?",
+    id: "sleep",
+    question: "When do you usually go to bed? 🌙",
+    description: "Your sleep schedule helps us match you with compatible roommates",
     options: [
-      "Read or watch something alone and sleep early (10 PM)",
-      "Hang out with friends / gaming, up till 1 AM",
-      "Movie night or chat, sleep around 11:30 PM",
+      { label: "Early bird - asleep by 10 PM 🦉", value: "Early" },
+      { label: "Balanced - around 11 PM-12 AM ⏰", value: "On-time" },
+      { label: "Night owl - up past midnight 🦉", value: "Night owl" },
     ],
+    mlField: "sleep"
   },
   {
-    id: "diet_type",
-    question: "How would you describe your diet?",
+    id: "eating",
+    question: "What's your dietary preference? 🍽️",
+    description: "Helps us match food compatibility",
     options: [
-      "Strictly vegetarian or vegan",
-      "Mostly veg, occasional non-veg",
-      "Eat everything, no restrictions",
+      { label: "Vegetarian 🌱", value: "Vegetarian" },
+      { label: "Vegan 🌿", value: "Vegan" },
+      { label: "Flexitarian (mostly veg) 🥗", value: "Flexitarian" },
+      { label: "Non-vegetarian 🍗", value: "Non-vegetarian" },
+      { label: "Eggetarian (veg + eggs) 🥚", value: "Eggetarian" },
     ],
+    mlField: "eating"
   },
   {
-    id: "sharing_comfort",
-    question: "Would you share food with your roommate?",
-    options: ["Prefer personal meals", "Sometimes share", "Love sharing food"],
-  },
-  {
-    id: "cleanliness_score",
-    question: "After a stressful week, what does your room look like?",
-    options: ["Still neat", "A bit messy but manageable", "Complete mess"],
-  },
-  {
-    id: "conflict_style",
-    question: "Roommate leaves dirty dishes. What do you do?",
+    id: "cleanliness",
+    question: "How tidy are you? 🧹",
+    description: "Be honest - this helps avoid conflicts!",
     options: [
-      "Just clean them (avoid conflict)",
-      "Drop hints / avoid direct talk",
-      "Talk gently but clearly",
+      { label: "Very tidy - everything in its place ✨", value: 5 },
+      { label: "Mostly organized 🧼", value: 4 },
+      { label: "Moderately tidy 👍", value: 3 },
+      { label: "A bit messy but functional 🌀", value: 2 },
+      { label: "Creative chaos - I know where everything is 😅", value: 1 },
     ],
+    mlField: "cleanliness"
   },
   {
-    id: "autonomy",
-    question: "How do you feel about living with others?",
+    id: "sociability",
+    question: "How social are you at home? 🗣️",
+    description: "Do you prefer quiet time or hanging out together?",
     options: [
-      "Prefer my own space & schedule",
-      "Share some activities, not everything",
-      "Love doing things together",
+      { label: "Quiet & private - need my space 🤫", value: "Quiet" },
+      { label: "Balanced - some alone time, some social 🧘", value: "Balanced" },
+      { label: "Social butterfly - love hanging out 🎉", value: "Social/Chill" },
     ],
+    mlField: "sociability"
+  },
+  {
+    id: "sharing",
+    question: "How do you feel about sharing food? 🍕",
+    description: "This helps us match sharing preferences",
+    options: [
+      { label: "Prefer keeping things separate 🙅‍♂️", value: "Not comfortable" },
+      { label: "Okay with some sharing 🤝", value: "Somewhat okay" },
+      { label: "Love sharing food! 🥡", value: "Very open" },
+    ],
+    mlField: "sharing"
   },
 ];
