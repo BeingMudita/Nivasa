@@ -261,6 +261,7 @@ def signup(data: FullSignupInput):
         }
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=f"Signup failed: {e}")
 
 @app.post("/login")

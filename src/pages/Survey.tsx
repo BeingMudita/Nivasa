@@ -128,31 +128,36 @@ const Survey = () => {
     }
   };
 
-  const handleBack = () => {
-    if (currentQuestionIndex > 0) {
-      // Remove the last question and user response
-      const newIndex = currentQuestionIndex - 1;
-      setCurrentQuestionIndex(newIndex);
-      
-      // Keep messages up to the previous question
-      const assistantMessages = messages.filter(msg => msg.type === 'assistant');
-      const lastAssistantIndex = assistantMessages.length - 1;
-      
-      if (lastAssistantIndex >= 1) {
-        const keepUntilId = assistantMessages[lastAssistantIndex - 1].id;
-        const keepUntilIndex = messages.findIndex(msg => msg.id === keepUntilId);
-        setMessages(prev => prev.slice(0, keepUntilIndex + 1));
-      }
-      
-      // Remove the last response
-      const currentQuestion = surveyQuestions[newIndex];
-      setUserResponses(prev => {
-        const newResponses = {...prev};
-        delete newResponses[currentQuestion.mlField];
-        return newResponses;
-      });
+const handleBack = () => {
+  if (currentQuestionIndex > 0) {
+    // Remove the last question and user response
+    const newIndex = currentQuestionIndex - 1;
+    setCurrentQuestionIndex(newIndex);
+
+    // Keep messages up to the previous question
+    const assistantMessages = messages.filter(msg => msg.type === 'assistant');
+    const lastAssistantIndex = assistantMessages.length - 1;
+
+    if (lastAssistantIndex >= 1) {
+      const keepUntilId = assistantMessages[lastAssistantIndex - 1].id;
+      const keepUntilIndex = messages.findIndex(msg => msg.id === keepUntilId);
+      setMessages(prev => prev.slice(0, keepUntilIndex + 1));
     }
-  };
+
+    // Remove the last response
+    const currentQuestion = surveyQuestions[newIndex];
+    setUserResponses(prev => {
+      const newResponses = {...prev};
+      delete newResponses[currentQuestion.mlField];
+      return newResponses;
+    });
+
+  } else {
+    // If on the first question, go back to home page
+    navigate("/");
+  }
+};
+
 
   const handleContinueToMatches = () => {
     navigate("/matches");
