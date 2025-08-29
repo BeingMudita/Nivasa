@@ -8,6 +8,7 @@ import heroImage from "@/assets/hero-illustration.jpg";
 import { surveyQuestions } from "@/data/surveyQuestions";
 
 
+
 interface ChatMessage {
   id: string;
   type: "user" | "assistant";
@@ -155,6 +156,7 @@ const Survey = () => {
               It takes just 2–3 minutes!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+              {user ? (
               <Button 
                 size="lg" 
                 variant="gradient" 
@@ -163,6 +165,12 @@ const Survey = () => {
               >
                 Start Survey
               </Button>
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                Please <span className="text-primary cursor-pointer" onClick={() => navigate("/auth")}>log in</span> to start the survey.
+              </p>
+            )}
+
             </div>
           </div>
         </div>
